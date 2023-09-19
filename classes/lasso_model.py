@@ -1,11 +1,12 @@
 import numpy as np
+from numpy import ndarray
 from sklearn import linear_model
-from . import data_loader
+from classes.data_loader import DataLoader
 
 
 class LassoModel(object):
 
-    def __init__(self, data_loader, lambda_val):
+    def __init__(self, data_loader: DataLoader, lambda_val: float):
         self.data_loader = data_loader
         self.lambda_val = lambda_val
         self.cols = ["be_me", "ret_12_1", "market_equity", "ret_1_0", "rvol_252d", "beta_252d", "qmj_safety", "rmax1_21d", "chcsho_12m",
@@ -17,7 +18,6 @@ class LassoModel(object):
     # train with sklearn
     def fit(self, start: int, end: int) -> None:
         df = self.data_loader.slice(start, end)
-        # TODO need get_x and get_y functions in data_loader (df -> np array) input is sliced already
         x_train = self.data_loader.get_x(df)
         y_train = self.data_loader.get_y(df)
 
