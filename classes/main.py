@@ -4,13 +4,17 @@ from . import lasso_model
 
 
 def main():
-    if len(sys.argv) != 5:
-        print("Wrong number of arguments. Arguments: file path, start date, end date, lambda (Date format: YYYYMMDD)")
+    if len(sys.argv) != 4:
+        print("Wrong number of arguments. Arguments: file path, start date, end date (Date format: YYYYMMDD)")
 
     file_path = sys.argv[1]
     start_date = int(sys.argv[2])
     end_date = int(sys.argv[3])
-    lambda_val = int(sys.arg[4])
+    # lambda_val = int(sys.arg[4])
+
+    # brief example of grid search for lambda values
+    lambda_values = [0.0001, 0.0005, 0.001, 0.005] 
+
     print("Running LASSO model for \n")
     print("***** File: {file_path}")
     print("***** Lambda: {sys.arg[4]}")
@@ -23,14 +27,22 @@ def main():
         validation_start, validation_end = year + 10, year + 15
         test_start, test_end = year + 15, year + 16
 
-        model = lasso_model(data, lambda_val)
+        model = lasso_model(data, lambda_values)
         print(
             f"Training lasso model from {str(start_date)} to {str(end_date)}...")
         model.fit(train_start, train_end)
 
-        best_param = model.evaluate(validation_start, validation_end)
+        best_lambda = model.validate(validation_start, validation_end)
         print(
-            f"Result for validation from {str(validation_start)} to {str(validation_end)}: {str(best_param)}")
+            f"The best lambda to use is {str(best_lambda)}")
+        
+        # predicting test results
+        y_pred = model.predict(test_start, test_end)
+
+        # model evaluation
+        validation_performance = model.evaluate(validation_start, validation_end)
+        print(
+            f"Result for validation from {str(validation_start)} to {str(validation_end)}: {str(validation_performance)}")
         # ? do we need other types of test results?
         test_performance = model.evaluate(test_start, test_end)
         print(
