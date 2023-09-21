@@ -59,8 +59,19 @@ class LassoModel(object):
 
 
     def predict(self, start: int, end: int) -> ndarray:
-        raise NotImplementedError
-        # TODO: Mia
+        # Slice the data for the prediction period
+        df = self.data_loader.slice(start, end)
+        x_pred = self.data_loader.get_x(df)
+
+        # Initialize an array to store predicted values
+        y_pred = np.zeros(len(x_pred))
+
+        # Loop through each data point in the prediction period
+        for i in range(len(x_pred)):
+            # Use the trained Lasso model for prediction
+            y_pred[i] = np.dot(x_pred[:,i], self.beta_list[:, 0]) + self.intercept_list[0]
+
+        return y_pred
 
     def evaluate(self, start: int, end: int) -> float:
         """
