@@ -39,36 +39,36 @@ class LassoModel(object):
                  train_end: int,
                  validate_start: int,
                  validate_end: int,
-                 lambda_values: list) -> float:
+                 lambda_values: list):
         """
         Tune hyperparameters using a validation set
         :param validate_end:
         :param validate_start:
         :param train_end:
         :param train_start:
-        :param data_loader:
-        :param lambda_values: List of lambda values to test
+        :param data_loader: DataLoader object
+        :param lambda_values: List of lambda values to conduct grid search
         """
         validate_df = data_loader.slice(validate_start, validate_end)
-        x_validate = data_loader.get_x(validate_df)
         y_validate = data_loader.get_y(validate_df)
 
         best_model = None
+        best_lambda = None
         best_r2 = -float('inf')
 
         for lambda_val in lambda_values:
             model = LassoModel(data_loader, lambda_val)
             model.fit(train_start, train_end)
-            y_pred = model.predict(x_validate)
+            y_pred = model.predict(validate_start, validate_end)
             
             r2 = r2_score(y_validate, y_pred)  # Calculate R-squared
         
             if r2 > best_r2:
+                best_lambda = lambda_val
                 best_r2 = r2
-                best_model = best_model
+                best_model = model
                 
-        return best_model
-
+        return best_model, best_r2, best_lambda
 
     def predict(self, start: int, end: int) -> ndarray:
         # Slice the data for the prediction period
@@ -93,4 +93,3 @@ class LassoModel(object):
         r2 = r2_score(y_actual, y_pred)
 
         return r2
-            
