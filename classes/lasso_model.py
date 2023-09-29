@@ -84,12 +84,24 @@ class LassoModel(object):
         :param end: period end year
         :return: an evaluation metric as floating number
         """
-        df = self.data_loader.slice(start, end)
-        y_actual = self.data_loader.get_y(df)
+        monthly_r2_scores = []
+        start_year, end_year = start // 10000, end // 10000
 
-        y_pred = self.predict(start, end)
+        for year in range(start_year, end_year):
+            for month in range(1, 13): 
+                start = int(f"{year}{month:02d}01")
+                if month == 12:
+                    end = int(f"{year + 1}0101") 
+                else:
+                    end = int(f"{year}{month + 1:02d}01")
 
-        # Calculate R-squared
-        r2 = r2_score(y_actual, y_pred)
+                df = self.data_loader.slice(start, end)
+                y_actual = self.data_loader.get_y(df)
 
-        return r2
+                y_pred = self.predict(start, end)
+
+                # Calculate R-squared for the month
+                r2 = r2_score(y_actual, y_pred)
+                monthly_r2_scores.append(r2)
+
+        return monthly_r2_scores
