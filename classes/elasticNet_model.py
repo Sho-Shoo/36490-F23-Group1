@@ -34,7 +34,7 @@ class ElasticNet_Model(object):
     #     self.beta_list[:, 0] = model.coef_
     #     self.intercept_list[0] = model.intercept_
     #     self.objective_list[0] = np.linalg.norm(model.coef_, ord=1)
-    
+    @classmethod
     def validate(self, data_loader: DataLoader,
                  train_start: int,
                  validate_end: int,
@@ -73,9 +73,11 @@ class ElasticNet_Model(object):
 
     #     return self.sklearn_model.predict(x_pred)
 
-    def evaluate(self, best_model, start: int, end: int) -> float:
+    @staticmethod
+    def evaluate(data: DataLoader, best_model, start: int, end: int) -> float:
         """
         Give evaluation metric of a trained/fitted model on a given test/validation period
+        :param data: Data loader
         :param start: period start year
         :param end: period end year
         :return: an evaluation metric as floating number
@@ -91,9 +93,9 @@ class ElasticNet_Model(object):
                 else:
                     end = int(f"{year}{month + 1:02d}01")
 
-                df = self.data_loader.slice(start, end)
-                x_test = self.data_loader.get_x(df)
-                y_actual = self.data_loader.get_y(df)
+                df = data.slice(start, end)
+                x_test = data.get_x(df)
+                y_actual = data.get_y(df)
 
                 y_pred = best_model.predict(x_test)
 
