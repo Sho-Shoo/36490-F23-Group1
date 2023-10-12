@@ -57,7 +57,7 @@ class LassoQuantileModel(object):
         :param lambda_values: List of lambda values to conduct grid search
         """
         validate_df = data_loader.slice(validate_start, validate_end)
-        y_validate = data_loader.get_y(validate_df)
+        y_validate = data_loader.get_y_quantiles(validate_df)
 
         best_model = None
         best_lambda = None
