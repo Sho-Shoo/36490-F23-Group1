@@ -54,3 +54,11 @@ class DataLoader(object):
     @staticmethod
     def get_y(df: DataFrame) -> ndarray: return df["ret_exc_lead1m"].to_numpy()
 
+    @staticmethod
+    def get_y_quantiles(df: DataFrame) -> ndarray:
+        raw_y = df["ret_exc_lead1m"].to_numpy()
+        maximum = raw_y.max()
+        minimum = raw_y.min()
+        rng = maximum - minimum
+        return (raw_y - minimum) / rng
+
