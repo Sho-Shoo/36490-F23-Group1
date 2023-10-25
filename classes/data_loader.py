@@ -1,3 +1,4 @@
+import numpy as np
 from pandas import DataFrame
 import pandas as pd
 from numpy import ndarray
@@ -56,9 +57,10 @@ class DataLoader(object):
 
     @staticmethod
     def get_y_quantiles(df: DataFrame) -> ndarray:
-        raw_y = df["ret_exc_lead1m"].to_numpy()
-        maximum = raw_y.max()
-        minimum = raw_y.min()
+        raw_y = df["ret_exc_lead1m"].to_numpy().astype(np.float64)
+        non_nan_values = raw_y[~np.isnan(raw_y)]
+        maximum = np.nanmax(non_nan_values)
+        minimum = np.nanmin(non_nan_values)
         rng = maximum - minimum
         return (raw_y - minimum) / rng
 
