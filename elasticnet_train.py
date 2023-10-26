@@ -70,6 +70,6 @@ try:
     with open('outputs/elasticnet/predictions.pkl', 'wb') as f:
         pickle.dump(predictions, f)
 except:
-    print(f"models: {predictions}")
+    print(f"predictions: {predictions}")
 
 print("Elastic Net training script successfully finished!")
