@@ -74,13 +74,13 @@ class ElasticNet_Model(object):
     #     return self.sklearn_model.predict(x_pred)
 
     @staticmethod
-    def evaluate(data: DataLoader, best_model, start: int, end: int) -> float:
+    def evaluate(data: DataLoader, best_model, start: int, end: int) -> list[float]:
         """
         Give evaluation metric of a trained/fitted model on a given test/validation period
         :param data: Data loader
         :param start: period start year
         :param end: period end year
-        :return: an evaluation metric as floating number
+        :return: an evaluation metric as a list of floating numbers
         """
         monthly_r2_scores = []
         start_year, end_year = start // 10000, end // 10000
