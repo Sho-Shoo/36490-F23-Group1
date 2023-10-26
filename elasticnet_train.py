@@ -12,6 +12,7 @@ L1_RATIO_VALUES = np.linspace(0, 1, 11)  # [0.0, 0.1, ..., 1.0]
 YEAR = 10000
 validation_r2s = []
 test_r2s = []
+predictions = []
 alphas = []
 l1_ratios = []
 models = []
@@ -31,8 +32,9 @@ for train_start in tqdm(range(19800101, 20000101 + 2 * YEAR, YEAR)):
     models.append(best_model)
 
     # testing on an extra year of data
-    test_r2 = ElasticNet_Model.evaluate(data, best_model, test_start, test_end)
+    test_r2, prediction = ElasticNet_Model.evaluate(data, best_model, test_start, test_end)
     test_r2s.extend(test_r2)
+    predictions.extend(prediction)
 
 try:
     with open('outputs/elasticnet/test_r2s.pkl', 'wb') as f:
@@ -63,5 +65,11 @@ try:
         pickle.dump(models, f)
 except:
     print(f"models: {models}")
+
+try:
+    with open('outputs/elasticnet/predictions.pkl', 'wb') as f:
+        pickle.dump(predictions, f)
+except:
+    print(f"models: {predictions}")
 
 print("Elastic Net training script successfully finished!")

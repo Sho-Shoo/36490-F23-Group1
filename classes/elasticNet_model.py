@@ -74,7 +74,7 @@ class ElasticNet_Model(object):
     #     return self.sklearn_model.predict(x_pred)
 
     @staticmethod
-    def evaluate(data: DataLoader, best_model, start: int, end: int) -> list[float]:
+    def evaluate(data: DataLoader, best_model, start: int, end: int) -> tuple:
         """
         Give evaluation metric of a trained/fitted model on a given test/validation period
         :param data: Data loader
@@ -84,6 +84,7 @@ class ElasticNet_Model(object):
         """
         monthly_r2_scores = []
         start_year, end_year = start // 10000, end // 10000
+        monthly_predictions = []
 
         for year in range(start_year, end_year):
             for month in range(1, 13): 
@@ -98,9 +99,10 @@ class ElasticNet_Model(object):
                 y_actual = data.get_y(df)
 
                 y_pred = best_model.predict(x_test)
+                monthly_predictions.append(y_pred)
 
                 # Calculate R-squared for the month
                 r2 = r2_score(y_actual, y_pred)
                 monthly_r2_scores.append(r2)
 
-        return monthly_r2_scores
+        return monthly_r2_scores, monthly_predictions
