@@ -2,13 +2,13 @@ from classes.data_loader import DataLoader
 from classes.elasticNet_model import ElasticNet_Model
 from tqdm import tqdm
 import pickle
+import numpy as np
 
 data = DataLoader("data/usa_short.csv")
+print(f"Data is loaded!")
 
-ALPHA_VALUES = [0.001]
-L1_RATIO_VALUES = [0.1]
-# ALPHA_VALUES = np.logspace(-4, 4, 9) # [0.0001, 0.001, ..., 10000]
-# L1_RATIO_VALUES = np.linspace(0, 1, 11)  # [0.0, 0.1, ..., 1.0]
+ALPHA_VALUES = np.logspace(-4, 4, 9) # [0.0001, 0.001, ..., 10000]
+L1_RATIO_VALUES = np.linspace(0, 1, 11)  # [0.0, 0.1, ..., 1.0]
 YEAR = 10000
 validation_r2s = []
 test_r2s = []
