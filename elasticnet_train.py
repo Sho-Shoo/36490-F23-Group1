@@ -34,17 +34,34 @@ for train_start in tqdm(range(19800101, 20000101 + 2 * YEAR, YEAR)):
     test_r2 = ElasticNet_Model.evaluate(data, best_model, test_start, test_end)
     test_r2s.extend(test_r2)
 
-with open('outputs/elasticnet/test_r2s.pkl', 'wb') as f:
-    pickle.dump(test_r2s, f)
+try:
+    with open('outputs/elasticnet/test_r2s.pkl', 'wb') as f:
+        pickle.dump(test_r2s, f)
+except:
+    print(f"test_r2s: {test_r2s}")
 
-with open('outputs/elasticnet/validation_r2s.pkl', 'wb') as f:
-    pickle.dump(validation_r2s, f)
+try:
+    with open('outputs/elasticnet/validation_r2s.pkl', 'wb') as f:
+        pickle.dump(validation_r2s, f)
+except:
+    print(f"validation_r2s: {validation_r2s}")
 
-with open('outputs/elasticnet/alphas.pkl', 'wb') as f:
-    pickle.dump(alphas, f)
+try:
+    with open('outputs/elasticnet/alphas.pkl', 'wb') as f:
+        pickle.dump(alphas, f)
+except:
+    print(f"alphas: {alphas}")
 
-with open('outputs/elasticnet/l1_ratios.pkl', 'wb') as f:
-    pickle.dump(l1_ratios, f)
+try:
+    with open('outputs/elasticnet/l1_ratios.pkl', 'wb') as f:
+        pickle.dump(l1_ratios, f)
+except:
+    print(f"l1_ratios: {l1_ratios}")
 
-with open('outputs/elasticnet/models.pkl', 'wb') as f:
-    pickle.dump(models, f)
+try:
+    with open('outputs/elasticnet/models.pkl', 'wb') as f:
+        pickle.dump(models, f)
+except:
+    print(f"models: {models}")
+
+print("Elastic Net training script successfully finished!")
