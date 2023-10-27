@@ -7,8 +7,8 @@ import numpy as np
 data = DataLoader("data/usa_short.csv")
 print(f"Data is loaded!")
 
-ALPHA_VALUES = np.logspace(-4, 4, 9) # [0.0001, 0.001, ..., 10000]
-L1_RATIO_VALUES = np.linspace(0, 1, 11)  # [0.0, 0.1, ..., 1.0]
+ALPHA_VALUES = list(np.logspace(-4, 4, 9)) # [0.0001, 0.001, ..., 10000]
+L1_RATIO_VALUES = list(np.linspace(0, 1, 11))  # [0.0, 0.1, ..., 1.0]
 YEAR = 10000
 validation_r2s = []
 test_r2s = []
@@ -25,7 +25,9 @@ for train_start in tqdm(range(19800101, 20000101 + 2 * YEAR, YEAR)):
     test_end = test_start + YEAR
 
     # perform grid search for the best alpha and l1_ratio hyperparameters
-    best_model, best_r2, best_alpha, best_l1_ratio = ElasticNet_Model.validate(data, train_start, validate_end, ALPHA_VALUES, L1_RATIO_VALUES)
+    best_model, best_r2, best_alpha, best_l1_ratio = ElasticNet_Model.validate(data, train_start, train_end,
+                                                                               validate_start, validate_end,
+                                                                               ALPHA_VALUES, L1_RATIO_VALUES)
     validation_r2s.append(best_r2)
     alphas.append(best_alpha)
     l1_ratios.append(best_l1_ratio)

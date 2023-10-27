@@ -36,8 +36,8 @@ class ElasticNet_Model(object):
     #     self.objective_list[0] = np.linalg.norm(model.coef_, ord=1)
     @classmethod
     def validate(self, data_loader: DataLoader,
-                 train_start: int,
-                 validate_end: int,
+                 train_start: int, train_end: int,
+                 validate_start: int, validate_end: int,
                  alpha_values: list,
                  l1_ratio_values: list):
         """
@@ -49,21 +49,25 @@ class ElasticNet_Model(object):
         :param alpha_values: List of alpha values to conduct grid search
         :param l1_ratio_values: List of l1 ratio values to conduct grid search
         """
-        validate_df = data_loader.slice(train_start, validate_end)
+        validate_df = data_loader.slice(validate_start, validate_end)
+        train_df = data_loader.slice(train_start, train_end)
         x_validate = data_loader.get_x(validate_df)
         y_validate = data_loader.get_y(validate_df)
+        x_train = data_loader.get_x(train_df)
+        y_train = data_loader.get_y(train_df)
 
-        param_grid = {'alpha': alpha_values, 'l1_ratio': l1_ratio_values}
+        best_r2, best_model, best_alpha, best_l1 = -1, None, None, None
+        for alpha in alpha_values:
+            for l1 in l1_ratio_values:
+                model = ElasticNet(alpha=alpha, l1_ratio=l1)
+                model.fit(x_train, y_train)
+                preds = model.predict(x_validate)
+                r2 = r2_score(y_validate, preds)
+                if r2 > best_r2:
+                    best_r2 = r2
+                    best_model, best_alpha, best_l1 = model, alpha, l1
 
-        # Perform Grid Search
-        grid_search = GridSearchCV(ElasticNet(), param_grid, scoring='r2', cv=5)
-        grid_search.fit(x_validate, y_validate)
-
-        best_alpha = grid_search.best_params_['alpha']
-        best_l1_ratio = grid_search.best_params_['l1_ratio']
-        self.sklearn_model = grid_search.best_estimator_
-
-        return grid_search.best_estimator_, grid_search.best_score_, best_alpha, best_l1_ratio
+        return best_model, best_r2, best_alpha, best_l1
 
 
     # def predict(self, start: int, end: int) -> ndarray:
