@@ -22,7 +22,7 @@ class USAPytorchDataset(Dataset):
 
 class USAPytorchDataloader(DataLoader):
     def __init__(self, start, end, **kwargs):
-        dataset = USAPytorchDataset(19900101, 20000101)
+        dataset = USAPytorchDataset(start, end)
         super().__init__(dataset, **kwargs)
 
 
