@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 from classes.data_loader import DataLoader as NormalDataLoader
@@ -16,7 +17,10 @@ class USAPytorchDataset(Dataset):
 
     def __getitem__(self, idx):
         X = torch.Tensor(self.X[idx, :])
-        y = torch.Tensor([self.y[idx]])
+        y = torch.Tensor(np.reshape(self.y[idx], (self.y[idx].size,)))
+        if y.numel() > 1:
+            y = y.view(y.numel(), 1)
+
         return X, y
 
 
