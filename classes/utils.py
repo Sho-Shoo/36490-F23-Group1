@@ -9,6 +9,10 @@ import torch
 import os
 from torchmetrics.metric import Metric
 
+def r2oos(y, yhat):
+    num = np.sum((y - yhat)**2)
+    den = np.sum((y)**2)
+    return 1 - num/den
 
 def train_nn(model: torch.nn.Module,
              train_dataloader: DataLoader,

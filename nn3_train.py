@@ -1,10 +1,9 @@
 import pickle
-
 import torchmetrics
 from tqdm import tqdm
 from classes.data_loader import DataLoader
 from classes.nn3 import NN3
-from classes.nn_utils import train_nn, evaluate_nn
+from classes.utils import train_nn, evaluate_nn
 from classes.pytorch_data_loader import USAPytorchDataloader
 import torch
 from torch.nn.modules.loss import _Loss as Loss
@@ -69,5 +68,3 @@ if __name__ == "__main__":
             pickle.dump(model_states, f)
     except:
         print(f"model_states is {model_states}")
-
-
