@@ -5,9 +5,9 @@ from classes.data_loader import DataLoader as NormalDataLoader
 
 
 class USAPytorchDataset(Dataset):
-    def __init__(self, start: int, end: int):
+    def __init__(self, normal_dataloader: NormalDataLoader, start: int, end: int):
         super().__init__()
-        normal_dataloader = NormalDataLoader("data/usa_short.csv")
+        # normal_dataloader = NormalDataLoader("data/usa_short.csv")
         data = normal_dataloader.slice(start, end)
         self.X = normal_dataloader.get_x(data)
         self.y = normal_dataloader.get_y(data)
@@ -25,8 +25,8 @@ class USAPytorchDataset(Dataset):
 
 
 class USAPytorchDataloader(DataLoader):
-    def __init__(self, start, end, **kwargs):
-        dataset = USAPytorchDataset(start, end)
+    def __init__(self, data: NormalDataLoader, start, end, **kwargs):
+        dataset = USAPytorchDataset(data, start, end)
         super().__init__(dataset, **kwargs)
 
 
