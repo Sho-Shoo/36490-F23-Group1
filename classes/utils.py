@@ -9,17 +9,26 @@ import torch
 import os
 from torchmetrics.metric import Metric
 
-def r2oos(y, yhat):
-    num = np.sum((y - yhat)**2)
-    den = np.sum((y)**2)
-    return 1 - num/den
+
+def r2oos(yhat, y):
+    if isinstance(yhat, np.ndarray) and isinstance(y, np.ndarray):
+        num = np.sum((y - yhat)**2)
+        den = np.sum((y)**2)
+        return 1 - num/den
+    elif isinstance(yhat, torch.Tensor) and isinstance(y, torch.Tensor):
+        num = torch.sum((y - yhat)**2)
+        den = torch.sum((y) ** 2)
+        return 1 - num/den
+    else:
+        raise ValueError(f"yhat and y's types ({type(yhat)} and {type(y)}) are not both ndarrays or tensors")
+
 
 def train_nn(model: torch.nn.Module,
              train_dataloader: DataLoader,
              validation_dataloader: DataLoader,
              optimizer: Optimizer,
              loss_fn: Loss,
-             metric: Metric,
+             metric,
              experiment_name: str,
              model_name: str,
              verbose=False,
@@ -42,7 +51,7 @@ def train_nn(model: torch.nn.Module,
 
     # device-agnostic setup
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    metric = metric.to(device)
+    if isinstance(metric, Metric): metric = metric.to(device)
     model = model.to(device)
 
     # to be returned as lists
@@ -103,7 +112,7 @@ def train_nn(model: torch.nn.Module,
 
 def test_nn(model: nn.Module,
             test_dataloader: DataLoader,
-            metric: Metric) -> tuple[float, np.array]:
+            metric) -> tuple[float, np.array]:
     """
     Test NN on a given test dataset
     :param model: nn.Module model
@@ -113,7 +122,7 @@ def test_nn(model: nn.Module,
         numpy array
     """
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    metric = metric.to(device)
+    if isinstance(metric, Metric): metric = metric.to(device)
     model = model.to(device)
 
     X, y = test_dataloader.dataset[:]
@@ -133,7 +142,7 @@ def evaluate_nn(model_type: nn.Module.__class__,
                 data,
                 test_start: int,
                 test_end: int,
-                metric: Metric) -> tuple[list, list]:
+                metric) -> tuple[list, list]:
     """
     Evaluate NN model on a monthly basis
     :param model_type:

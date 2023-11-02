@@ -8,6 +8,7 @@ from classes.pytorch_data_loader import USAPytorchDataloader
 import torch
 from torch.nn.modules.loss import _Loss as Loss
 from torchmetrics.metric import Metric
+from classes.utils import r2oos
 
 if __name__ == "__main__":
 
@@ -32,7 +33,8 @@ if __name__ == "__main__":
         validation_dataloader = USAPytorchDataloader(data, validate_start, validate_end, batch_size=1024)
         loss_fn: Loss = torch.nn.MSELoss()
         optimizer = torch.optim.SGD(params=nn3.parameters(), lr=0.001, momentum=0.9)
-        r2_metric: Metric = torchmetrics.R2Score()
+        # r2_metric: Metric = torchmetrics.R2Score()
+        r2_metric = r2oos
 
         model_state, train_r2, val_r2 = train_nn(nn3, train_dataloader, validation_dataloader,
                                                  optimizer, loss_fn, r2_metric,
