@@ -6,8 +6,7 @@ from sklearn.metrics import r2_score
 
 if __name__ == "__main__":
 
-    # data = DataLoader("data/usa_short.csv")
-    data = DataLoader("usa1.csv")
+    data = DataLoader("data/usa_short.csv")
     print(f"Data is loaded!")
 
     YEAR = 10000
