@@ -1,9 +1,6 @@
 import numpy as np
 from numpy import ndarray
-try:
-    from sklearn import r2_score
-except ImportError:
-    from sklearn.metrics import r2_score
+from classes.utils import r2oos
 from classes.data_loader import DataLoader
 from sklearn.linear_model import ElasticNet
 from sklearn.model_selection import GridSearchCV
@@ -62,7 +59,7 @@ class ElasticNet_Model(object):
                 model = ElasticNet(alpha=alpha, l1_ratio=l1)
                 model.fit(x_train, y_train)
                 preds = model.predict(x_validate)
-                r2 = r2_score(y_validate, preds)
+                r2 = r2oos(preds, y_validate)
                 if r2 > best_r2:
                     best_r2 = r2
                     best_model, best_alpha, best_l1 = model, alpha, l1
@@ -106,7 +103,7 @@ class ElasticNet_Model(object):
                 monthly_predictions.append(y_pred)
 
                 # Calculate R-squared for the month
-                r2 = r2_score(y_actual, y_pred)
+                r2 = r2oos(y_pred, y_actual)
                 monthly_r2_scores.append(r2)
 
         return monthly_r2_scores, monthly_predictions

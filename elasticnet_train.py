@@ -7,7 +7,7 @@ import numpy as np
 data = DataLoader("data/usa_short.csv")
 print(f"Data is loaded!")
 
-ALPHA_VALUES = list(np.logspace(-4, 4, 9)) # [0.0001, 0.001, ..., 10000]
+ALPHA_VALUES = [0] + list(np.logspace(-4, 2, 7))  # [0, 0.0001, 0.001, ..., 10000]
 L1_RATIO_VALUES = list(np.linspace(0, 1, 11))  # [0.0, 0.1, ..., 1.0]
 YEAR = 10000
 validation_r2s = []
