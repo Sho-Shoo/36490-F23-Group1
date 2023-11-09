@@ -1,6 +1,6 @@
 import numpy as np
 from numpy import ndarray
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import accuracy_score
 from classes.data_loader_dt import DataLoader
 try:
@@ -8,12 +8,15 @@ try:
 except ImportError:
     from sklearn.metrics import r2_score
 
+def r2oos(y, yhat):
+    num = np.sum((y- yhat)**2)
+    den = np.sum((y)**2)
+    return 1 - num/den
+
 class RandomForest(object):
 
-    def __init__(self, data_loader: DataLoader, alpha: float = 1.0, l1_ratio: float = 0.5):
+    def __init__(self, data_loader: DataLoader):
         self.data_loader = data_loader
-        self.alpha = alpha
-        self.l1_ratio = l1_ratio
         self.cols = ["be_me", "ret_12_1", "market_equity", "ret_1_0", "rvol_252d", "beta_252d", "qmj_safety", "rmax1_21d", "chcsho_12m",
                      "ni_me", "eq_dur", "ret_60_12", "ope_be", "gp_at", "ebit_sale", "at_gr1", "sale_gr1", "at_be", "cash_at", "age", "z_score"]
 
@@ -37,9 +40,8 @@ class RandomForest(object):
     def validate(self, data_loader: DataLoader,
                  train_start: int,
                  train_end: int,
-                 validate_start: int, validate_end: int,
-                 alpha_values: list,
-                 l1_ratio_values: list):
+                 validate_start: int, 
+                 validate_end: int):
         validate_df = data_loader.slice(validate_start, validate_end)
         train_df = data_loader.slice(train_start, train_end)
         x_validate = data_loader.get_x(validate_df)
@@ -47,18 +49,17 @@ class RandomForest(object):
         x_train = data_loader.get_x(train_df)
         y_train = data_loader.get_y(train_df)
 
-        best_r2, best_model, best_alpha, best_l1 = -1, None, None, None
-        for alpha in alpha_values:
-            for l1 in l1_ratio_values:    
-                model = RandomForestClassifier(n_estimators=alpha, min_samples_split=l1, random_state=42)
-                model.fit(x_train, y_train)
-                preds = model.predict(x_validate)
-                r2 = r2_score(y_validate, preds)
-                if r2 > best_r2:
-                    best_r2 = r2
-                    best_model, best_alpha, best_l1 = model, alpha, l1
+        best_r2, best_model = -1, None
 
-        return best_model, best_r2, best_alpha, best_l1             
+        model = RandomForestRegressor()
+        model.fit(x_train, y_train)
+        preds = model.predict(x_validate)
+        r2 = r2oos(y_validate, preds)
+        if r2 > best_r2:
+            best_r2 = r2
+            best_model = model
+
+        return best_model, best_r2       
 
     # def predict(self, start: int, end: int) -> ndarray:
     #     # Slice the data for the prediction period

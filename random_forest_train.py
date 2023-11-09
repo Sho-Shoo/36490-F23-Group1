@@ -1,4 +1,5 @@
 import pickle
+import numpy as np
 from tqdm import tqdm
 from classes.data_loader import DataLoader
 from classes.random_forest import RandomForest
@@ -16,9 +17,6 @@ if __name__ == "__main__":
     validation_r2s = []
     test_r2s = []
     predictions = []
-
-    alphas = []
-    l1_ratios = []
     models = []
 
     for train_start in tqdm(range(19800101, 20000101 + 2 * YEAR, YEAR)):
@@ -28,15 +26,14 @@ if __name__ == "__main__":
         test_start = validate_end
         test_end = test_start + YEAR
 
-        best_model, best_r2, best_alpha, best_l1_ratio = RandomForest.validate(data, train_start, train_end,
-                                                                               validate_start, validate_end,
-                                                                               ALPHA_VALUES, L1_RATIO_VALUES)
+        instance = RandomForest(data)
+
+        best_model, best_r2 = instance.validate(data, train_start, train_end, 
+                                                    validate_start, validate_end)
         validation_r2s.append(best_r2)
-        alphas.append(best_alpha)
-        l1_ratios.append(best_l1_ratio)
         models.append(best_model)
 
-        test_r2, prediction = RandomForest.evaluate(data, best_model, test_start, test_end)
+        test_r2, prediction = instance.evaluate(data, best_model, test_start, test_end)
         test_r2s.extend(test_r2)
         predictions.extend(prediction)
 
@@ -57,18 +54,6 @@ if __name__ == "__main__":
             pickle.dump(predictions, f)
     except:
         print(f"predictions is {predictions}")
-
-    try:
-        with open('outputs/elasticnet/alphas.pkl', 'wb') as f:
-            pickle.dump(alphas, f)
-    except:
-        print(f"alphas: {alphas}")
-
-    try:
-        with open('outputs/elasticnet/l1_ratios.pkl', 'wb') as f:
-            pickle.dump(l1_ratios, f)
-    except:
-        print(f"l1_ratios: {l1_ratios}")
     try:
         with open('outputs/elasticnet/models.pkl', 'wb') as f:
             pickle.dump(models, f)
