@@ -92,7 +92,7 @@ class RandomForest(object):
 
                 y_pred = best_model.predict(x_test)
                 monthly_predictions.append(y_pred)
-                r2 = r2_score(y_actual, y_pred)
+                r2 = r2oos(y_actual, y_pred)
                 monthly_r2_scores.append(r2)
 
         return monthly_r2_scores, monthly_predictions
