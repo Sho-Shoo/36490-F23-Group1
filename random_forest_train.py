@@ -12,11 +12,14 @@ if __name__ == "__main__":
 
     ALPHA_VALUES = list(np.logspace(-4, 4, 9)) # [0.0001, 0.001, ..., 10000]
     L1_RATIO_VALUES = list(np.linspace(0, 1, 11))  # [0.0, 0.1, ..., 1.0]
+    ALPHA_VALUES = list(np.logspace(-4, 4, 5)) # [0.0001, 0.001, ..., 10000]
+
     YEAR = 10000
 
     validation_r2s = []
     test_r2s = []
     predictions = []
+    alphas = []
     models = []
 
     for train_start in tqdm(range(19800101, 20000101 + 2 * YEAR, YEAR)):
@@ -26,14 +29,13 @@ if __name__ == "__main__":
         test_start = validate_end
         test_end = test_start + YEAR
 
-        instance = RandomForest(data)
-
-        best_model, best_r2 = instance.validate(data, train_start, train_end, 
-                                                    validate_start, validate_end)
+        best_model, best_r2, best_alpha = RandomForest.validate(data, train_start, train_end, 
+                                                    validate_start, validate_end, ALPHA_VALUES)
         validation_r2s.append(best_r2)
+        alphas.append(best_alpha)
         models.append(best_model)
 
-        test_r2, prediction = instance.evaluate(data, best_model, test_start, test_end)
+        test_r2, prediction = RandomForest.evaluate(data, best_model, test_start, test_end)
         test_r2s.extend(test_r2)
         predictions.extend(prediction)
 
@@ -59,3 +61,8 @@ if __name__ == "__main__":
             pickle.dump(models, f)
     except:
         print(f"models: {models}")
+    try:
+        with open('outputs/elasticnet/alphas.pkl', 'wb') as f:
+            pickle.dump(alphas, f)
+    except:
+        print(f"alphas: {alphas}")

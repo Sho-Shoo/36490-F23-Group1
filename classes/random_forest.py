@@ -19,29 +19,15 @@ class RandomForest(object):
         self.data_loader = data_loader
         self.cols = ["be_me", "ret_12_1", "market_equity", "ret_1_0", "rvol_252d", "beta_252d", "qmj_safety", "rmax1_21d", "chcsho_12m",
                      "ni_me", "eq_dur", "ret_60_12", "ope_be", "gp_at", "ebit_sale", "at_gr1", "sale_gr1", "at_be", "cash_at", "age", "z_score"]
-
-        self.beta_list = np.zeros((len(self.cols), 3))
-        self.intercept_list = np.zeros(3)
-        self.objective_list = np.zeros(3)
         self.sklearn_model = None
-
-    # train with sklearn
-    # def fit(self, start: int, end: int) -> None:
-    #     print("fit")
-    #     df = self.data_loader.slice(start, end)
-    #     x_train = self.data_loader.get_x(df)
-    #     y_train = self.data_loader.get_y(df)
-    #     rf_model = RandomForestClassifier(
-    #         n_estimators=100, min_samples_split=20, random_state=42)
-    #     rf_model.fit(x_train, y_train)
-    #     self.sklearn_model = rf_model
 
     @classmethod
     def validate(self, data_loader: DataLoader,
                  train_start: int,
                  train_end: int,
                  validate_start: int, 
-                 validate_end: int):
+                 validate_end: int, 
+                 alpha_values: list):
         validate_df = data_loader.slice(validate_start, validate_end)
         train_df = data_loader.slice(train_start, train_end)
         x_validate = data_loader.get_x(validate_df)
@@ -49,23 +35,25 @@ class RandomForest(object):
         x_train = data_loader.get_x(train_df)
         y_train = data_loader.get_y(train_df)
 
-        best_r2, best_model = -1, None
+        best_r2, best_model, best_alpha = -1, None, None
 
-        model = RandomForestRegressor()
-        model.fit(x_train, y_train)
-        preds = model.predict(x_validate)
-        r2 = r2oos(y_validate, preds)
-        if r2 > best_r2:
-            best_r2 = r2
-            best_model = model
+        for alpha in alpha_values:
+            model = RandomForestRegressor(criterion = "absolute_error", 
+                                          n_jobs=-1, 
+                                          ccp_alpha = alpha, 
+                                          random_state=42, 
+                                          min_samples_leaf=1,
+                                          min_samples_split=2)
+            model.fit(x_train, y_train)
+            preds = model.predict(x_validate)
+            r2 = r2oos(y_validate, preds)
 
-        return best_model, best_r2       
+            if r2 > best_r2:
+                best_r2 = r2
+                best_model = model
+                best_alpha = alpha
 
-    # def predict(self, start: int, end: int) -> ndarray:
-    #     # Slice the data for the prediction period
-    #     df = self.data_loader.slice(start, end)
-    #     x_pred = self.data_loader.get_x(df)
-    #     return self.sklearn_model.predict(x_pred)
+            return best_model, best_r2, best_alpha       
 
     def evaluate(self, data: DataLoader, best_model, start: int, end: int) -> tuple:
         """
