@@ -35,7 +35,7 @@ sp500 = sp500[(sp500["tic"] == "I0003")]
 
 #Choose start date and end date here
 start_date = '1996-1-1'
-end_date = '1996-3-1'
+end_date = '1996-2-1'
 
 rf = rf[['caldt','t30ret']]
 rf['caldt'] = pd.to_datetime(rf['caldt'])  
