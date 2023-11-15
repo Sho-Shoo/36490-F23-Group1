@@ -1,8 +1,6 @@
 import pickle
 import numpy as np
 import pandas as pd
-#from example_code.portfolio_code import get_top_10_percent_indices
-#from example_code.portfolio_code import get_bottom_10_percent_indices
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
@@ -149,3 +147,11 @@ with open('outputs/portfolio/long_short_eNet.pkl', 'wb') as f:
     pickle.dump(eNet_long_short, f)
 with open('outputs/portfolio/long_eNet.pkl', 'wb') as f:
     pickle.dump(eNet_long, f)
+
+# nn3Path = 'outputs/nn3_50epochs/model_states.pkl'
+# nn3_long_short, nn3_long = calc_portfolio(nn3Path)
+
+# with open('outputs/portfolio/long_short_nn3.pkl', 'wb') as f:
+#     pickle.dump(nn3_long_short, f)
+# with open('outputs/portfolio/long_nn3.pkl', 'wb') as f:
+#     pickle.dump(nn3_long, f)
