@@ -43,7 +43,8 @@ class RandomForest(object):
                                           ccp_alpha = alpha, 
                                           random_state=42, 
                                           min_samples_leaf=1,
-                                          min_samples_split=2)
+                                          min_samples_split=2, 
+                                          max_depth = 20)
             model.fit(x_train, y_train)
             preds = model.predict(x_validate)
             r2 = r2oos(y_validate, preds)

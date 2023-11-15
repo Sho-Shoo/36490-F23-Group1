@@ -10,9 +10,8 @@ if __name__ == "__main__":
     data = DataLoader("data/usa_short.csv")
     print(f"Data is loaded!")
 
-    ALPHA_VALUES = list(np.logspace(-4, 4, 9)) # [0.0001, 0.001, ..., 10000]
-    L1_RATIO_VALUES = list(np.linspace(0, 1, 11))  # [0.0, 0.1, ..., 1.0]
     ALPHA_VALUES = list(np.logspace(-4, 4, 5)) # [0.0001, 0.001, ..., 10000]
+    L1_RATIO_VALUES = list(np.linspace(0, 1, 11))  # [0.0, 0.1, ..., 1.0]
 
     YEAR = 10000
 
@@ -57,12 +56,12 @@ if __name__ == "__main__":
     except:
         print(f"predictions is {predictions}")
     try:
-        with open('outputs/elasticnet/models.pkl', 'wb') as f:
+        with open('outputs/rf/models.pkl', 'wb') as f:
             pickle.dump(models, f)
     except:
         print(f"models: {models}")
     try:
-        with open('outputs/elasticnet/alphas.pkl', 'wb') as f:
+        with open('outputs/rf/alphas.pkl', 'wb') as f:
             pickle.dump(alphas, f)
     except:
         print(f"alphas: {alphas}")
