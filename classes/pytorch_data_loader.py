@@ -5,28 +5,33 @@ from classes.data_loader import DataLoader as NormalDataLoader
 
 
 class USAPytorchDataset(Dataset):
-    def __init__(self, normal_dataloader: NormalDataLoader, start: int, end: int):
+    def __init__(self, normal_dataloader: NormalDataLoader, start: int, end: int, is_classifier=False):
         super().__init__()
-        # normal_dataloader = NormalDataLoader("data/usa_short.csv")
         data = normal_dataloader.slice(start, end)
+        self.is_classifier = is_classifier
         self.X = normal_dataloader.get_x(data)
-        self.y = normal_dataloader.get_y(data)
+        if is_classifier: self.y = normal_dataloader.get_label(data)
+        else: self.y = normal_dataloader.get_y(data)
 
     def __len__(self):
         return len(self.X)
 
     def __getitem__(self, idx):
         X = torch.Tensor(self.X[idx, :])
-        y = torch.Tensor(np.reshape(self.y[idx], (self.y[idx].size,)))
-        if y.numel() > 1:
-            y = y.view(y.numel(), 1)
+
+        if self.is_classifier:
+            y = torch.Tensor(self.y[idx])
+        else:
+            y = torch.Tensor(np.reshape(self.y[idx], (self.y[idx].size,)))
+            if y.numel() > 1:
+                y = y.view(y.numel(), 1)
 
         return X, y
 
 
 class USAPytorchDataloader(DataLoader):
-    def __init__(self, data: NormalDataLoader, start, end, **kwargs):
-        dataset = USAPytorchDataset(data, start, end)
+    def __init__(self, data: NormalDataLoader, start, end, is_classifier=False, **kwargs):
+        dataset = USAPytorchDataset(data, start, end, is_classifier=is_classifier)
         super().__init__(dataset, **kwargs)
 
 
