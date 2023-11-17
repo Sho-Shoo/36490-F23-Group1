@@ -34,14 +34,14 @@ class RandomForest(object):
         y_validate = data_loader.get_y(validate_df)
         x_train = data_loader.get_x(train_df)
         y_train = data_loader.get_y(train_df)
+        # take subsample from large training set
+        all_indexes = np.arange(x_train.shape[0])
+        chosen_indexes = np.random.choice(all_indexes, replace=False, size=(train_subsample_size,))
+        x_train_sample, y_train_sample = x_train[chosen_indexes], y_train[chosen_indexes]
 
         best_r2, best_model, best_alpha = -1, None, None
 
         for alpha in tqdm(alpha_values):
-
-            all_indexes = np.arange(x_train.shape[0])
-            chosen_indexes = np.random.choice(all_indexes, replace=False, size=(train_subsample_size,))
-            x_train_sample, y_train_sample = x_train[chosen_indexes], y_train[chosen_indexes]
 
             model = RandomForestRegressor(criterion="absolute_error",
                                           n_jobs=-1,
@@ -61,7 +61,7 @@ class RandomForest(object):
                 best_model = model
                 best_alpha = alpha
 
-            return best_model, best_r2, best_alpha       
+        return best_model, best_r2, best_alpha
 
     @staticmethod
     def evaluate(data: DataLoader, best_model, start: int, end: int) -> tuple:
