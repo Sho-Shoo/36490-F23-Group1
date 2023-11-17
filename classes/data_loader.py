@@ -1,3 +1,4 @@
+import numpy
 import numpy as np
 from pandas import DataFrame
 import pandas as pd
@@ -47,6 +48,16 @@ class DataLoader(object):
 
         data.sort_values(by=['date', 'permno'], inplace=True)
 
+        # calculate bottom 10%, middle 80%, and top 10% labels (0, 1, 2)
+        data['year_month'] = data['date'] // 100
+        data['ranked_y'] = data.groupby('year_month')['ret_exc_lead1m'].rank(pct=True, method='min')
+        bins = [0, 0.1, 0.9, 1]
+        labels = [0, 1, 2]
+        data['label'] = pd.cut(data['ranked_y'], bins=bins, labels=labels, include_lowest=True)
+        # remove intermediate columns
+        del data['year_month']
+        del data['ranked_y']
+
         return data
 
     @staticmethod
@@ -63,4 +74,11 @@ class DataLoader(object):
         minimum = np.nanmin(non_nan_values)
         rng = maximum - minimum
         return (raw_y - minimum) / rng
+
+    @staticmethod
+    def get_label(df: DataFrame) -> ndarray:
+        label = df['label'].to_numpy(dtype=numpy.int8)
+        onehot = np.zeros((label.size, label.max() + 1), dtype=numpy.int8)
+        onehot[np.arange(label.size), label] = 1
+        return onehot
 
