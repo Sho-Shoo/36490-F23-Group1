@@ -26,7 +26,8 @@ class RandomForest(object):
                  train_end: int,
                  validate_start: int, 
                  validate_end: int, 
-                 alpha_values: list,
+                 n_estimators_values: list,
+                 max_depth_values: list,
                  train_subsample_size: int = 10_000):
         validate_df = data_loader.slice(validate_start, validate_end)
         train_df = data_loader.slice(train_start, train_end)
@@ -39,29 +40,30 @@ class RandomForest(object):
         chosen_indexes = np.random.choice(all_indexes, replace=False, size=(train_subsample_size,))
         x_train_sample, y_train_sample = x_train[chosen_indexes], y_train[chosen_indexes]
 
-        best_r2, best_model, best_alpha = -1, None, None
+        best_r2, best_model, best_n_estimator, best_max_depth = -1, None, None, None
 
-        for alpha in tqdm(alpha_values):
+        for n_estimator in tqdm(n_estimators_values):
+            for max_depth in tqdm(max_depth_values):
 
-            model = RandomForestRegressor(criterion="absolute_error",
-                                          n_jobs=-1,
-                                          ccp_alpha=alpha,
-                                          random_state=42,
-                                          min_samples_leaf=1,
-                                          min_samples_split=2,
-                                          max_depth=10,
-                                          n_estimators=10)
+                model = RandomForestRegressor(criterion="absolute_error",
+                                            n_jobs=-1,
+                                            random_state=42,
+                                            min_samples_leaf=1,
+                                            min_samples_split=2,
+                                            max_depth=max_depth,
+                                            n_estimators=n_estimator)
 
-            model.fit(x_train_sample, y_train_sample)
-            preds = model.predict(x_validate)
-            r2 = r2oos(y_validate, preds)
+                model.fit(x_train_sample, y_train_sample)
+                preds = model.predict(x_validate)
+                r2 = r2oos(y_validate, preds)
 
-            if r2 > best_r2:
-                best_r2 = r2
-                best_model = model
-                best_alpha = alpha
+                if r2 > best_r2:
+                    best_r2 = r2
+                    best_model = model
+                    best_n_estimator = n_estimator
+                    best_max_depth = max_depth
 
-        return best_model, best_r2, best_alpha
+        return best_model, best_r2, best_n_estimator, best_max_depth
 
     @staticmethod
     def evaluate(data: DataLoader, best_model, start: int, end: int) -> tuple:

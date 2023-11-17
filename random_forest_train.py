@@ -10,15 +10,16 @@ if __name__ == "__main__":
     data = DataLoader("data/usa_short.csv")
     print(f"Data is loaded!")
 
-    ALPHA_VALUES = list(np.logspace(-4, 4, 5)) # [0.0001, 0.001, ..., 10000]
-    L1_RATIO_VALUES = list(np.linspace(0, 1, 11))  # [0.0, 0.1, ..., 1.0]
+    N_ESTIMATORS_VALUES = list(np.logspace(100, 1000, 50)) 
+    MAX_DEPTH_VALUES = list(np.linspace(50, 500, 25))  # [0.0, 0.1, ..., 1.0]
 
     YEAR = 10000
 
     validation_r2s = []
     test_r2s = []
     predictions = []
-    alphas = []
+    n_estimators = []
+    max_depths = []
     models = []
 
     for train_start in tqdm(range(19800101, 20000101 + 2 * YEAR, YEAR)):
@@ -28,10 +29,11 @@ if __name__ == "__main__":
         test_start = validate_end
         test_end = test_start + YEAR
 
-        best_model, best_r2, best_alpha = RandomForest.validate(data, train_start, train_end, 
-                                                    validate_start, validate_end, ALPHA_VALUES)
+        best_model, best_r2, best_n_estimator, best_max_depth = RandomForest.validate(data, train_start, train_end, 
+                                                    validate_start, validate_end, N_ESTIMATORS_VALUES, MAX_DEPTH_VALUES)
         validation_r2s.append(best_r2)
-        alphas.append(best_alpha)
+        n_estimators.append(best_n_estimator)
+        max_depths.append(best_max_depth)
         models.append(best_model)
 
         test_r2, prediction = RandomForest.evaluate(data, best_model, test_start, test_end)
@@ -61,7 +63,7 @@ if __name__ == "__main__":
     except:
         print(f"models: {models}")
     try:
-        with open('outputs/rf/alphas.pkl', 'wb') as f:
-            pickle.dump(alphas, f)
+        with open('outputs/rf/n_estimators.pkl', 'wb') as f:
+            pickle.dump(n_estimators, f)
     except:
-        print(f"alphas: {alphas}")
+        print(f"alphas: {n_estimators}")
