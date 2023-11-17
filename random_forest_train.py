@@ -10,8 +10,8 @@ if __name__ == "__main__":
     data = DataLoader("data/usa_short.csv")
     print(f"Data is loaded!")
 
-    N_ESTIMATORS_VALUES = list(np.logspace(100, 1000, 50)) 
-    MAX_DEPTH_VALUES = list(np.linspace(50, 500, 25))  # [0.0, 0.1, ..., 1.0]
+    N_ESTIMATORS_VALUES = [int(value) for value in np.linspace(100, 1000, 50)]
+    MAX_DEPTH_VALUES = [int(value) for value in np.linspace(50, 500, 25)]
 
     YEAR = 10000
 
