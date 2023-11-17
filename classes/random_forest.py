@@ -1,7 +1,6 @@
 import numpy as np
-from numpy import ndarray
+from tqdm import tqdm
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import accuracy_score
 from classes.data_loader_dt import DataLoader
 try:
     from sklearn import r2_score
@@ -27,7 +26,8 @@ class RandomForest(object):
                  train_end: int,
                  validate_start: int, 
                  validate_end: int, 
-                 alpha_values: list):
+                 alpha_values: list,
+                 train_subsample_size: int = 10_000):
         validate_df = data_loader.slice(validate_start, validate_end)
         train_df = data_loader.slice(train_start, train_end)
         x_validate = data_loader.get_x(validate_df)
@@ -37,16 +37,22 @@ class RandomForest(object):
 
         best_r2, best_model, best_alpha = -1, None, None
 
-        for alpha in alpha_values:
-            model = RandomForestRegressor(criterion = "absolute_error", 
-                                          n_jobs=-1, 
-                                          ccp_alpha = alpha, 
-                                          random_state=42, 
+        for alpha in tqdm(alpha_values):
+
+            all_indexes = np.arange(x_train.shape[0])
+            chosen_indexes = np.random.choice(all_indexes, replace=False, size=(train_subsample_size,))
+            x_train_sample, y_train_sample = x_train[chosen_indexes], y_train[chosen_indexes]
+
+            model = RandomForestRegressor(criterion="absolute_error",
+                                          n_jobs=-1,
+                                          ccp_alpha=alpha,
+                                          random_state=42,
                                           min_samples_leaf=1,
-                                          min_samples_split=2, 
-                                          max_depth = 10, 
-                                          n_estimators = 10)
-            model.fit(x_train, y_train)
+                                          min_samples_split=2,
+                                          max_depth=10,
+                                          n_estimators=10)
+
+            model.fit(x_train_sample, y_train_sample)
             preds = model.predict(x_validate)
             r2 = r2oos(y_validate, preds)
 
@@ -57,7 +63,8 @@ class RandomForest(object):
 
             return best_model, best_r2, best_alpha       
 
-    def evaluate(self, data: DataLoader, best_model, start: int, end: int) -> tuple:
+    @staticmethod
+    def evaluate(data: DataLoader, best_model, start: int, end: int) -> tuple:
         """
         Give evaluation metric of a trained/fitted model on a given test/validation period
         :param start: period start year
