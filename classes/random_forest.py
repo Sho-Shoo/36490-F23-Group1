@@ -26,8 +26,7 @@ class RandomForest(object):
                  train_end: int,
                  validate_start: int, 
                  validate_end: int, 
-                 n_estimators_values: list,
-                 max_depth_values: list,
+                 min_samples_splits: list,
                  train_subsample_size: int = 10_000):
         validate_df = data_loader.slice(validate_start, validate_end)
         train_df = data_loader.slice(train_start, train_end)
@@ -40,31 +39,22 @@ class RandomForest(object):
         chosen_indexes = np.random.choice(all_indexes, replace=False, size=(train_subsample_size,))
         x_train_sample, y_train_sample = x_train[chosen_indexes], y_train[chosen_indexes]
 
-        best_r2, best_model, best_n_estimator, best_max_depth = -1, None, None, None
+        best_r2, best_model, best_min_samples_split = -1, None, None
 
-        for n_estimator in tqdm(n_estimators_values):
-            for max_depth in tqdm(max_depth_values):
+        for min_samples_split in tqdm(min_samples_splits):
+            model = RandomForestRegressor(n_estimators = 100, max_depth = 1, min_samples_split = min_samples_split, max_features = 7, bootstrap = True, max_samples = 0.5)
 
-                model = RandomForestRegressor(criterion="absolute_error",
-                                            n_jobs=-1,
-                                            random_state=42,
-                                            min_samples_leaf=1,
-                                            min_samples_split=2,
-                                            max_depth=max_depth,
-                                            n_estimators=n_estimator)
+            model.fit(x_train_sample, y_train_sample)
+            preds = model.predict(x_validate)
+            r2 = r2oos(y_validate, preds)
 
-                model.fit(x_train_sample, y_train_sample)
-                preds = model.predict(x_validate)
-                r2 = r2oos(y_validate, preds)
-
-                if r2 > best_r2:
-                    best_r2 = r2
-                    best_model = model
-                    best_n_estimator = n_estimator
-                    best_max_depth = max_depth
-
-        return best_model, best_r2, best_n_estimator, best_max_depth
-
+            if r2 > best_r2:
+                best_r2 = r2
+                best_model = model
+                best_min_samples_split = min_samples_split
+    
+        return best_model, best_r2, best_min_samples_split
+    
     @staticmethod
     def evaluate(data: DataLoader, best_model, start: int, end: int) -> tuple:
         """
