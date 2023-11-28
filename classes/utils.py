@@ -8,6 +8,7 @@ from classes.pytorch_data_loader import USAPytorchDataloader
 import torch
 import os
 from torchmetrics.metric import Metric
+from torchmetrics import Accuracy
 
 
 def r2oos(yhat, y):
@@ -21,6 +22,22 @@ def r2oos(yhat, y):
         return 1 - num/den
     else:
         raise ValueError(f"yhat and y's types ({type(yhat)} and {type(y)}) are not both ndarrays or tensors")
+
+
+def onehot_decode(onehot_encoded):
+    decoded_labels = torch.argmax(onehot_encoded, dim=1)
+    return decoded_labels
+
+
+class AccuracyMetric:
+
+    def __init__(self, **kwargs):
+        self.acc_calculator = Accuracy(**kwargs)
+
+    def __call__(self, *args, **kwargs):
+        y_preds, y_true = args
+        y_true = onehot_decode(y_true)
+        return self.acc_calculator(y_preds, y_true)
 
 
 def train_nn(model: torch.nn.Module,
@@ -112,7 +129,8 @@ def train_nn(model: torch.nn.Module,
 
 def test_nn(model: nn.Module,
             test_dataloader: DataLoader,
-            metric) -> tuple[float, np.array]:
+            metric,
+            is_classifier=False) -> tuple[float, np.array]:
     """
     Test NN on a given test dataset
     :param model: nn.Module model
@@ -132,7 +150,8 @@ def test_nn(model: nn.Module,
     with torch.inference_mode():
         y_pred = model(X)
         measure = metric(y_pred, y)
-        y_pred = np.array(y_pred).reshape((y_pred.numel(),))
+        if is_classifier: y_pred = onehot_decode(y_pred)
+        else: y_pred = np.array(y_pred).reshape((y_pred.numel(),))
 
     return float(measure), y_pred
 
@@ -142,9 +161,11 @@ def evaluate_nn(model_type: nn.Module.__class__,
                 data,
                 test_start: int,
                 test_end: int,
-                metric) -> tuple[list, list]:
+                metric,
+                is_classifier: bool = False) -> tuple[list, list]:
     """
     Evaluate NN model on a monthly basis
+    :param is_classifier:
     :param model_type:
     :param model_state:
     :param data:
@@ -168,8 +189,8 @@ def evaluate_nn(model_type: nn.Module.__class__,
             else:
                 end = int(f"{year}{month + 1:02d}01")
 
-            test_dataloader = USAPytorchDataloader(data, start, end, batch_size=1024)
-            measure, prediction = test_nn(model, test_dataloader, metric)
+            test_dataloader = USAPytorchDataloader(data, start, end, is_classifier=is_classifier, batch_size=1024)
+            measure, prediction = test_nn(model, test_dataloader, metric, is_classifier=is_classifier)
             measures.append(measure)
             monthly_predicitons.append(prediction)
 
