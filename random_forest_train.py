@@ -10,15 +10,14 @@ if __name__ == "__main__":
     data = DataLoader("data/usa_short.csv")
     print(f"Data is loaded!")
 
-    ALPHA_VALUES = list(np.logspace(-4, 4, 5)) # [0.0001, 0.001, ..., 10000]
-    L1_RATIO_VALUES = list(np.linspace(0, 1, 11))  # [0.0, 0.1, ..., 1.0]
+    MIN_SAMPLES_SPLITS = [int(value) for value in np.linspace(5, 16, 5)]
 
     YEAR = 10000
 
     validation_r2s = []
     test_r2s = []
     predictions = []
-    alphas = []
+    samples_splits = []
     models = []
 
     for train_start in tqdm(range(19800101, 20000101 + 2 * YEAR, YEAR)):
@@ -28,10 +27,10 @@ if __name__ == "__main__":
         test_start = validate_end
         test_end = test_start + YEAR
 
-        best_model, best_r2, best_alpha = RandomForest.validate(data, train_start, train_end, 
-                                                    validate_start, validate_end, ALPHA_VALUES)
+        best_model, best_r2, best_min_samples_split = RandomForest.validate(data, train_start, train_end, 
+                                                    validate_start, validate_end, MIN_SAMPLES_SPLITS)
         validation_r2s.append(best_r2)
-        alphas.append(best_alpha)
+        samples_splits.append(best_min_samples_split)
         models.append(best_model)
 
         test_r2, prediction = RandomForest.evaluate(data, best_model, test_start, test_end)
@@ -60,8 +59,3 @@ if __name__ == "__main__":
             pickle.dump(models, f)
     except:
         print(f"models: {models}")
-    try:
-        with open('outputs/rf/alphas.pkl', 'wb') as f:
-            pickle.dump(alphas, f)
-    except:
-        print(f"alphas: {alphas}")

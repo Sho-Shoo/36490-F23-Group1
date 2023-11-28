@@ -26,7 +26,7 @@ class RandomForest(object):
                  train_end: int,
                  validate_start: int, 
                  validate_end: int, 
-                 alpha_values: list,
+                 min_samples_splits: list,
                  train_subsample_size: int = 10_000):
         validate_df = data_loader.slice(validate_start, validate_end)
         train_df = data_loader.slice(train_start, train_end)
@@ -39,18 +39,10 @@ class RandomForest(object):
         chosen_indexes = np.random.choice(all_indexes, replace=False, size=(train_subsample_size,))
         x_train_sample, y_train_sample = x_train[chosen_indexes], y_train[chosen_indexes]
 
-        best_r2, best_model, best_alpha = -1, None, None
+        best_r2, best_model, best_min_samples_split = -1, None, None
 
-        for alpha in tqdm(alpha_values):
-
-            model = RandomForestRegressor(criterion="absolute_error",
-                                          n_jobs=-1,
-                                          ccp_alpha=alpha,
-                                          random_state=42,
-                                          min_samples_leaf=1,
-                                          min_samples_split=2,
-                                          max_depth=10,
-                                          n_estimators=10)
+        for min_samples_split in tqdm(min_samples_splits):
+            model = RandomForestRegressor(n_estimators = 100, max_depth = 1, min_samples_split = min_samples_split, max_features = 7, bootstrap = True, max_samples = 0.5)
 
             model.fit(x_train_sample, y_train_sample)
             preds = model.predict(x_validate)
@@ -59,10 +51,10 @@ class RandomForest(object):
             if r2 > best_r2:
                 best_r2 = r2
                 best_model = model
-                best_alpha = alpha
-
-        return best_model, best_r2, best_alpha
-
+                best_min_samples_split = min_samples_split
+    
+        return best_model, best_r2, best_min_samples_split
+    
     @staticmethod
     def evaluate(data: DataLoader, best_model, start: int, end: int) -> tuple:
         """
