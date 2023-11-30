@@ -28,10 +28,10 @@ from sklearn.linear_model import LassoCV, RidgeCV, ElasticNetCV
 # os.chdir('/Users/mingjunsun/Library/CloudStorage/Dropbox/23 Summer/Data')
 
 #read in rf
-rf = pd.read_csv("data/sp500/rf.csv",index_col=False)
+rf = pd.read_csv("data/rf.csv",index_col=False)
 
 #read in SP 500
-sp500 = pd.read_csv("data/sp500/index_wrds.csv",index_col=False)
+sp500 = pd.read_csv("data/index_wrds.csv",index_col=False)
 sp500 = sp500[(sp500["tic"] == "I0003")]
 
 #Choose start date and end date here
@@ -62,6 +62,7 @@ sp_obj = sp_obj.join(extracted_col)
 sp_obj['excess_return'] = sp_obj['return'] - sp_obj['t30ret']
 
 excess_return = np.array(sp_obj['excess_return'])
+risk_free_return = np.array(sp_obj['t30ret'])
 
 # print("SP500 Mean Return: "+ str(np.mean(sp_obj["return"])))
 # print("SP500 Mean Excess Return: "+ str(np.mean(sp_obj["excess_return"])))
@@ -69,4 +70,7 @@ excess_return = np.array(sp_obj['excess_return'])
 
 with open('outputs/portfolio/sp500.pkl', 'wb') as f:
     pickle.dump(excess_return, f)
+
+with open('outputs/portfolio/risk_free.pkl', 'wb') as f:
+    pickle.dump(risk_free_return, f)
 

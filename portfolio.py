@@ -189,13 +189,13 @@ if __name__ == "__main__":
     # with open('outputs/portfolio/long_eNet.pkl', 'wb') as f:
     #     pickle.dump(eNet_long, f)
 
-    nn3Path = 'outputs/nn3_classifier_50epochs/predictions.pkl'
-    nn3_long_short, nn3_long = calc_portfolio_from_predictions(nn3Path)
-
-    with open('outputs/portfolio/long_short_nn3_classifier.pkl', 'wb') as f:
-        pickle.dump(nn3_long_short, f)
-    with open('outputs/portfolio/long_nn3_classifier.pkl', 'wb') as f:
-        pickle.dump(nn3_long, f)
+    # nn3Path = 'outputs/nn3_classifier_50epochs/predictions.pkl'
+    # nn3_long_short, nn3_long = calc_portfolio_from_predictions(nn3Path)
+    #
+    # with open('outputs/portfolio/long_short_nn3_classifier.pkl', 'wb') as f:
+    #     pickle.dump(nn3_long_short, f)
+    # with open('outputs/portfolio/long_nn3_classifier.pkl', 'wb') as f:
+    #     pickle.dump(nn3_long, f)
 
     # nn5Path = 'outputs/nn5_100epochs/predictions.pkl'
     # nn5_long_short, nn5_long = calc_portfolio_from_predictions(nn5Path)
@@ -204,3 +204,11 @@ if __name__ == "__main__":
     #     pickle.dump(nn5_long_short, f)
     # with open('outputs/portfolio/long_nn5.pkl', 'wb') as f:
     #     pickle.dump(nn5_long, f)
+
+    rfPath = 'outputs/rf/predictions.pkl'
+    rf_long_short, rf_long = calc_portfolio_from_predictions(rfPath)
+
+    with open('outputs/portfolio/long_short_rf.pkl', 'wb') as f:
+        pickle.dump(rf_long_short, f)
+    with open('outputs/portfolio/long_rf.pkl', 'wb') as f:
+        pickle.dump(rf_long, f)
