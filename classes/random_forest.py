@@ -42,7 +42,7 @@ class RandomForest(object):
         best_r2, best_model, best_min_samples_split = -1, None, None
 
         for min_samples_split in tqdm(min_samples_splits):
-            model = RandomForestRegressor(n_estimators = 100, max_depth = 1, min_samples_split = min_samples_split, max_features = 7, bootstrap = True, max_samples = 0.5)
+            model = RandomForestRegressor(n_estimators = 100, max_depth = 3, min_samples_split = min_samples_split, max_features = 7, bootstrap = True, max_samples = 0.5)
 
             model.fit(x_train_sample, y_train_sample)
             preds = model.predict(x_validate)

@@ -38,24 +38,24 @@ if __name__ == "__main__":
         predictions.extend(prediction)
 
     try:
-        with open("outputs/rf/test_r2s.pkl", "wb") as f:
+        with open("outputs/rf2/test_r2s.pkl", "wb") as f:
             pickle.dump(test_r2s, f)
     except:
         print(f"test_r2s is {test_r2s}")
 
     try:
-        with open("outputs/rf/validation_r2s.pkl", "wb") as f:
+        with open("outputs/rf2/validation_r2s.pkl", "wb") as f:
             pickle.dump(validation_r2s, f)
     except:
         print(f"validation_r2s is {validation_r2s}")
 
     try:
-        with open("outputs/rf/predictions.pkl", "wb") as f:
+        with open("outputs/rf2/predictions.pkl", "wb") as f:
             pickle.dump(predictions, f)
     except:
         print(f"predictions is {predictions}")
     try:
-        with open('outputs/rf/models.pkl', 'wb') as f:
+        with open('outputs/rf2/models.pkl', 'wb') as f:
             pickle.dump(models, f)
     except:
         print(f"models: {models}")
